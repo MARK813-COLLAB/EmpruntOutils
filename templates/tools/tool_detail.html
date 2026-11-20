@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}{{ tool.titre }} - EmpruntOutils{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Colonne Principale : Image & Description -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0 mb-4">
+            {% if tool.photo %}
+                <img src="{{ tool.photo.url }}" class="card-img-top" alt="{{ tool.titre }}" style="max-height: 420px; object-fit: cover;">
+            {% else %}
+                <div class="card-img-top bg-secondary-subtle d-flex align-items-center justify-content-center text-secondary py-5">
+                    <i class="bi bi-tools" style="font-size: 5rem;"></i>
+                </div>
+            {% endif %}
+
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary fs-6">{{ tool.categorie.nom }}</span>
+                    <div>
+                        {% if tool.etat == 'a_reparer' or tool.signale_endommage %}
+                            <span class="badge bg-danger fs-6">À réparer</span>
+                        {% elif tool.disponible %}
+                            <span class="badge bg-success fs-6">Disponible</span>
+                        {% else %}
+                            <span class="badge bg-warning text-dark fs-6">Indisponible</span>
+                        {% endif %}
+                        <span class="badge bg-light text-dark border fs-6 ms-1">État : {{ tool.get_etat_display }}</span>
+                    </div>
+                </div>
+
+                <h2 class="fw-bold mb-3">{{ tool.titre }}</h2>
+                <p class="lead text-secondary">{{ tool.description|linebreaks|default:"Pas de description disponible." }}</p>
+
+                <!-- Tags F15 -->
+                {% if tool.tags.all %}
+                <div class="mt-3">
+                    <span class="text-muted fw-semibold me-2">Tags :</span>
+                    {% for tag in tool.tags.all %}
+                        <span class="badge bg-secondary-subtle text-dark me-1">#{{ tag.nom }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Actions propriétaire si connecté -->
+                {% if user.is_authenticated and user == tool.proprietaire %}
+                <hr class="my-4">
+                <div class="d-flex gap-2">
+                    <a href="{% url 'tools:tool_update' tool.pk %}" class="btn btn-outline-primary">
+                        <i class="bi bi-pencil me-1"></i>Modifier l'outil
+                    </a>
+                    <a href="{% url 'tools:tool_delete' tool.pk %}" class="btn btn-outline-danger">
+                        <i class="bi bi-trash me-1"></i>Supprimer
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Avis et évaluations (F8) -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-star-fill text-warning me-2"></i>Avis et évaluations</h5>
+            </div>
+            <div class="card-body p-4">
+                {% if reviews %}
+                    {% for review in reviews %}
+                        <div class="border-bottom pb-3 mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span class="fw-bold">{{ review.auteur.username }}</span>
+                                <small class="text-muted">{{ review.date|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            <div class="text-warning mb-2">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.note %}
+                                        <i class="bi bi-star-fill"></i>
+                                    {% else %}
+                                        <i class="bi bi-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <span class="text-muted small ms-1">({{ review.note }}/5)</span>
+                            </div>
+                            <p class="mb-0 text-secondary">{{ review.commentaire|default:"Aucun commentaire écrit." }}</p>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="text-muted mb-0">Cet outil n'a pas encore reçu d'avis.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Colonne Latérale : Propriétaire, Disponibilité, Action d'emprunt -->
+    <div class="col-lg-4">
+        <!-- Propriétaire -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4 text-center">
+                <i class="bi bi-person-circle text-primary" style="font-size: 3.5rem;"></i>
+                <h5 class="fw-bold mt-2 mb-1">{{ tool.proprietaire.username }}</h5>
+                {% if tool.proprietaire.profile.filiere %}
+                    <span class="badge bg-secondary mb-2">{{ tool.proprietaire.profile.filiere }}</span>
+                {% endif %}
+                
+                <!-- Badges du propriétaire -->
+                {% if tool.proprietaire.profile.badge %}
+                <div class="d-flex flex-wrap gap-1 justify-content-center mt-2">
+                    {% for b in tool.proprietaire.profile.badge %}
+                        <span class="badge bg-{{ b.color }}" title="{{ b.description }}">
+                            <i class="bi {{ b.icon }} me-1"></i>{{ b.label }}
+                        </span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- Bouton Favori F11 -->
+                {% if user.is_authenticated %}
+                <hr>
+                <a href="{% url 'tools:toggle_favori' tool.pk %}" class="btn btn-outline-danger w-100">
+                    {% if is_favori %}
+                        <i class="bi bi-heart-fill me-1"></i>Retirer des favoris
+                    {% else %}
+                        <i class="bi bi-heart me-1"></i>Ajouter aux favoris
+                    {% endif %}
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Emprunter l'outil (F4) -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body p-4">
+                <h5 class="fw-bold mb-3"><i class="bi bi-calendar-check me-2 text-primary"></i>Emprunter cet outil</h5>
+                
+                {% if not user.is_authenticated %}
+                    <div class="alert alert-info small mb-3">
+                        Connectez-vous pour demander cet outil en prêt.
+                    </div>
+                    <a href="{% url 'accounts:login' %}" class="btn btn-primary w-100">
+                        Se connecter
+                    </a>
+                {% elif user == tool.proprietaire %}
+                    <div class="alert alert-secondary small mb-0">
+                        <i class="bi bi-info-circle me-1"></i>Vous êtes le propriétaire de cet outil. Vous ne pouvez pas l'emprunter (R1).
+                    </div>
+                {% elif tool.etat == 'a_reparer' or not tool.disponible %}
+                    <div class="alert alert-warning small mb-0">
+                        <i class="bi bi-exclamation-triangle me-1"></i>Cet outil est actuellement indisponible au prêt.
+                    </div>
+                {% else %}
+                    <p class="text-muted small">Choisissez vos dates pour soumettre une demande au propriétaire.</p>
+                    <a href="{% url 'loans:loan_create' tool.pk %}" class="btn btn-success btn-lg w-100">
+                        <i class="bi bi-send me-1"></i>Demander à emprunter
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Calendrier des réservations F14 -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-white py-3 fw-bold">
+                <i class="bi bi-calendar3 me-2 text-primary"></i>Créneaux réservés
+            </div>
+            <div class="card-body p-3">
+                {% if reserved_loans %}
+                    <ul class="list-group list-group-flush">
+                        {% for loan in reserved_loans %}
+                            <li class="list-group-item px-0 py-2 d-flex justify-content-between align-items-center">
+                                <div>
+                                    <span class="badge bg-warning text-dark me-2">Réservé</span>
+                                    <small class="fw-semibold">{{ loan.date_debut|date:"d/m/Y" }} au {{ loan.date_fin_prevue|date:"d/m/Y" }}</small>
+                                </div>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted small mb-0">Aucun créneau de réservation en cours. L'outil est libre !</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

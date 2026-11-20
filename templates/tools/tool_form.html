@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - EmpruntOutils{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-tools me-2 text-primary"></i>{{ title }}</h4>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" enctype="multipart/form-data" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-3">
+                        <label for="id_titre" class="form-label fw-semibold">Titre de l'outil <span class="text-danger">*</span></label>
+                        {{ form.titre }}
+                        {% for error in form.titre.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="id_categorie" class="form-label fw-semibold">Catégorie <span class="text-danger">*</span></label>
+                            {{ form.categorie }}
+                            {% for error in form.categorie.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="id_etat" class="form-label fw-semibold">État de l'outil <span class="text-danger">*</span></label>
+                            {{ form.etat }}
+                            {% for error in form.etat.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_description" class="form-label fw-semibold">Description détaillée</label>
+                        {{ form.description }}
+                        {% for error in form.description.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_tags_text" class="form-label fw-semibold">Tags (F15)</label>
+                        {{ form.tags_text }}
+                        <div class="form-text text-muted">{{ form.tags_text.help_text }}</div>
+                        {% for error in form.tags_text.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="id_photo" class="form-label fw-semibold">Photo de l'outil</label>
+                        {{ form.photo }}
+                        {% for error in form.photo.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+                    </div>
+
+                    <div class="form-check mb-4">
+                        {{ form.disponible }}
+                        <label class="form-check-label fw-semibold" for="id_disponible">
+                            Disponible immédiatement pour être emprunté
+                        </label>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'tools:my_tools' %}" class="btn btn-outline-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-1"></i>Enregistrer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

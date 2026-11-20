@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Catalogue des outils - EmpruntOutils{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="fw-bold"><i class="bi bi-grid me-2 text-primary"></i>Catalogue des outils partagés</h2>
+        <p class="text-muted mb-0">Découvrez et empruntez les outils mis à disposition par d'autres étudiants</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        {% if user.is_authenticated %}
+        <a href="{% url 'tools:tool_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-circle me-1"></i>Proposer un outil
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Filtres et recherche (F3, F15) -->
+<div class="card shadow-sm border-0 mb-4 bg-white">
+    <div class="card-body p-3">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-4">
+                {{ form.q }}
+            </div>
+            <div class="col-md-3">
+                {{ form.categorie }}
+            </div>
+            <div class="col-md-2">
+                {{ form.tag }}
+            </div>
+            <div class="col-md-2">
+                <div class="form-check mt-1">
+                    {{ form.disponible_seulement }}
+                    <label class="form-check-label small" for="{{ form.disponible_seulement.id_for_label }}">
+                        Disponibles uniquement
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-1 d-grid">
+                <button type="submit" class="btn btn-primary" title="Filtrer">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Liste des outils -->
+<div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+    {% for tool in tools %}
+    <div class="col">
+        <div class="card h-100 shadow-sm border-0 position-relative">
+            {% if tool.photo %}
+                <img src="{{ tool.photo.url }}" class="card-img-top" alt="{{ tool.titre }}" style="height: 190px; object-fit: cover;">
+            {% else %}
+                <div class="card-img-top bg-secondary-subtle d-flex align-items-center justify-content-center text-secondary" style="height: 190px;">
+                    <i class="bi bi-tools" style="font-size: 3rem;"></i>
+                </div>
+            {% endif %}
+
+            <!-- Bouton favori F11 -->
+            {% if user.is_authenticated %}
+            <div class="position-absolute top-0 end-0 p-2">
+                <a href="{% url 'tools:toggle_favori' tool.pk %}" class="btn btn-sm btn-light rounded-circle shadow-sm" title="Ajouter aux favoris">
+                    {% if tool.pk in user_favoris_ids %}
+                        <i class="bi bi-heart-fill text-danger"></i>
+                    {% else %}
+                        <i class="bi bi-heart text-muted"></i>
+                    {% endif %}
+                </a>
+            </div>
+            {% endif %}
+
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="badge bg-light text-primary border">{{ tool.categorie.nom }}</span>
+                    {% if tool.etat == 'a_reparer' or tool.signale_endommage %}
+                        <span class="badge bg-danger">À réparer</span>
+                    {% elif tool.disponible %}
+                        <span class="badge bg-success">Disponible</span>
+                    {% else %}
+                        <span class="badge bg-warning text-dark">Indisponible</span>
+                    {% endif %}
+                </div>
+
+                <h5 class="card-title fw-bold">
+                    <a href="{% url 'tools:tool_detail' tool.pk %}" class="text-decoration-none text-dark">
+                        {{ tool.titre }}
+                    </a>
+                </h5>
+                <p class="card-text text-muted small flex-grow-1">
+                    {{ tool.description|truncatewords:18|default:"Aucune description détaillée." }}
+                </p>
+
+                <!-- Tags F15 -->
+                {% if tool.tags.all %}
+                <div class="mb-3 d-flex flex-wrap gap-1">
+                    {% for tag in tool.tags.all %}
+                        <a href="?tag={{ tag.pk }}" class="badge bg-secondary-subtle text-secondary text-decoration-none small">
+                            #{{ tag.nom }}
+                        </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="pt-2 border-top d-flex justify-content-between align-items-center mt-auto">
+                    <small class="text-muted">
+                        <i class="bi bi-person me-1"></i>{{ tool.proprietaire.username }}
+                    </small>
+                    <a href="{% url 'tools:tool_detail' tool.pk %}" class="btn btn-sm btn-outline-primary">
+                        Voir la fiche <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12 text-center py-5">
+        <i class="bi bi-search text-muted" style="font-size: 3rem;"></i>
+        <h5 class="mt-3 text-muted">Aucun outil ne correspond à votre recherche.</h5>
+        <a href="{% url 'tools:tool_list' %}" class="btn btn-outline-secondary mt-2">Réinitialiser les filtres</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
