@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Demande de prolongation - EmpruntOutils{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h4 class="mb-0 fw-bold"><i class="bi bi-clock-history text-primary me-2"></i>Demander une prolongation (F17)</h4>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-light border mb-4">
+                    <h6 class="fw-bold mb-1">{{ loan.outil.titre }}</h6>
+                    <small class="text-muted">Date de fin actuelle : <strong>{{ loan.date_fin_prevue|date:"d/m/Y" }}</strong></small>
+                </div>
+
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <div class="mb-4">
+                        <label for="{{ form.nouvelle_date_fin_demandee.id_for_label }}" class="form-label fw-semibold">
+                            Nouvelle date de fin souhaitée <span class="text-danger">*</span>
+                        </label>
+                        {{ form.nouvelle_date_fin_demandee }}
+                        {% for error in form.nouvelle_date_fin_demandee.errors %}
+                            <div class="text-danger small mt-1">{{ error }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="alert alert-secondary small mb-4">
+                        <i class="bi bi-info-circle me-1"></i>
+                        La prolongation ne sera effective qu'après validation du propriétaire. Elle sera automatiquement refusée si un autre prêt est déjà accepté sur la période (R6).
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'loans:loan_list' %}" class="btn btn-outline-secondary">Annuler</a>
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-send me-1"></i>Envoyer la demande de prolongation
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
