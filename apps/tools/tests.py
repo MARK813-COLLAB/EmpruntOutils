@@ -207,3 +207,22 @@ class TestToolAvailability:
         tool.etat = "a_reparer"
         tool.save()
         assert tool.est_disponible(today, today) is False
+
+    def test_availability_calendar_in_tool_detail(self, client, users, tool):
+        """Vérifie la présence des créneaux réservés dans la fiche outil (F14)."""
+        from datetime import date, timedelta
+        from apps.loans.models import Loan
+        d1 = date.today() + timedelta(days=2)
+        d2 = date.today() + timedelta(days=5)
+        active_loan = Loan.objects.create(
+            outil=tool,
+            emprunteur=users["bob"],
+            date_debut=d1,
+            date_fin_prevue=d2,
+            statut="accepte",
+        )
+        url = reverse("tools:tool_detail", kwargs={"pk": tool.pk})
+        response = client.get(url)
+        assert response.status_code == 200
+        assert "reserved_loans" in response.context
+        assert active_loan in response.context["reserved_loans"]
