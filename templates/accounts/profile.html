@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}Mon Profil - EmpruntOutils{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Colonne Profil & Badges -->
+    <div class="col-lg-4 mb-4">
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-body text-center p-4">
+                <div class="mb-3">
+                    <i class="bi bi-person-circle text-primary" style="font-size: 4rem;"></i>
+                </div>
+                <h4 class="fw-bold mb-1">{{ user.username }}</h4>
+                <p class="text-muted mb-2">{{ user.email }}</p>
+                {% if profile.filiere %}
+                    <span class="badge bg-secondary mb-3">{{ profile.filiere }}</span>
+                {% endif %}
+
+                <!-- Badges de réputation F12 -->
+                <div class="mt-3">
+                    <h6 class="text-uppercase text-muted fw-bold small">Badges de réputation</h6>
+                    {% if profile.badge %}
+                        <div class="d-flex flex-wrap gap-2 justify-content-center mt-2">
+                            {% for b in profile.badge %}
+                                <span class="badge bg-{{ b.color }} p-2" title="{{ b.description }}">
+                                    <i class="bi {{ b.icon }} me-1"></i>{{ b.label }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="small text-muted mt-2">Empruntez ou prêtez des outils pour débloquer vos premiers badges !</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistiques personnelles F13 -->
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white fw-bold">
+                <i class="bi bi-graph-up me-2 text-primary"></i>Mes statistiques
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span><i class="bi bi-box-arrow-in-down me-2 text-primary"></i>Outils empruntés</span>
+                        <span class="badge bg-primary rounded-pill">{{ stats.total_borrowed }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span><i class="bi bi-box-arrow-up me-2 text-success"></i>Prêts effectués</span>
+                        <span class="badge bg-success rounded-pill">{{ stats.total_lent }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <span><i class="bi bi-clock-history me-2 text-info"></i>Taux de ponctualité</span>
+                        <span class="badge bg-info rounded-pill">{{ stats.taux_ponctualite }} %</span>
+                    </li>
+                    <li class="list-group-item px-0">
+                        <div class="text-muted small">Outil le plus emprunté :</div>
+                        <div class="fw-semibold text-truncate">{{ stats.most_borrowed_tool }}</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Colonne Modification du profil F1 -->
+    <div class="col-lg-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-pencil-square me-2 text-primary"></i>Modifier mes informations</h5>
+            </div>
+            <div class="card-body p-4">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+
+                    <h6 class="text-muted fw-bold mb-3">Informations de compte</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Nom d'utilisateur</label>
+                            {{ u_form.username }}
+                            {% for error in u_form.username.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Adresse email</label>
+                            {{ u_form.email }}
+                            {% for error in u_form.email.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Prénom</label>
+                            {{ u_form.first_name }}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Nom</label>
+                            {{ u_form.last_name }}
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <h6 class="text-muted fw-bold mb-3">Informations étudiantes</h6>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Téléphone</label>
+                            {{ p_form.telephone }}
+                            {% for error in p_form.telephone.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-semibold">Filière d'études</label>
+                            {{ p_form.filiere }}
+                            {% for error in p_form.filiere.errors %}
+                                <div class="text-danger small">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-primary px-4">
+                            <i class="bi bi-save me-1"></i>Enregistrer les modifications
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
