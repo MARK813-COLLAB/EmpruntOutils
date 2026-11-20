@@ -1,0 +1,17 @@
+/* Custom styles for EmpruntOutils */
+body {
+    min-height: 100vh;
+}
+
+.card {
+    transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.badge-reputation {
+    font-size: 0.85rem;
+    padding: 0.35em 0.65em;
+}

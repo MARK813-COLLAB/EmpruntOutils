@@ -1,0 +1,8 @@
+# Dependencies for EmpruntOutils
+django>=5.0,<5.2
+pillow>=10.0.0
+pytest>=8.0.0
+pytest-django>=4.8.0
+pytest-cov>=4.1.0
+coverage>=7.4.0
+python-dotenv>=1.0.0
