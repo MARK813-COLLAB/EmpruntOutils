@@ -1,56 +1,58 @@
 {% extends "base.html" %}
 
-{% block title %}Mes Favoris - EmpruntOutils{% endblock %}
+{% block title %}Mes Favoris — EmpruntOutils{% endblock %}
 
 {% block content %}
 <div class="mb-4">
-    <h2 class="fw-bold"><i class="bi bi-heart-fill me-2 text-danger"></i>Mes Outils Favoris</h2>
-    <p class="text-muted mb-0">Retrouvez facilement les outils que vous avez marqués pour plus tard (F11)</p>
+    <h1>Mes favoris</h1>
+    <p style="color: var(--ink-soft);">Retrouvez facilement les outils que vous avez marqués pour plus tard</p>
 </div>
 
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for fav in favoris %}
     <div class="col">
-        <div class="card h-100 shadow-sm border-0 position-relative">
+        <div class="card tool-card">
             {% if fav.outil.photo %}
-                <img src="{{ fav.outil.photo.url }}" class="card-img-top" alt="{{ fav.outil.titre }}" style="height: 180px; object-fit: cover;">
+                <div class="tool-thumb">
+                    <img src="{{ fav.outil.photo.url }}" alt="{{ fav.outil.titre }}">
+                </div>
             {% else %}
-                <div class="card-img-top bg-secondary-subtle d-flex align-items-center justify-content-center text-secondary" style="height: 180px;">
-                    <i class="bi bi-tools" style="font-size: 3rem;"></i>
+                <div class="tool-thumb">
+                    <i class="bi bi-tools" style="font-size: 2.5rem; color: var(--ink-soft);"></i>
                 </div>
             {% endif %}
 
             <div class="position-absolute top-0 end-0 p-2">
-                <a href="{% url 'tools:toggle_favori' fav.outil.pk %}" class="btn btn-sm btn-light rounded-circle shadow-sm" title="Retirer des favoris">
-                    <i class="bi bi-trash text-danger"></i>
+                <a href="{% url 'tools:toggle_favori' fav.outil.pk %}" class="btn-star-fav" title="Retirer des favoris">
+                    <i class="bi bi-x" style="color: var(--ink-soft);"></i>
                 </a>
             </div>
 
-            <div class="card-body d-flex flex-column">
+            <div class="tool-card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="badge bg-light text-primary border">{{ fav.outil.categorie.nom }}</span>
+                    <span class="tool-category-label">{{ fav.outil.categorie.nom }}</span>
                     {% if fav.outil.disponible %}
-                        <span class="badge bg-success">Disponible</span>
+                        <span class="badge-status-disponible">Disponible</span>
                     {% else %}
-                        <span class="badge bg-warning text-dark">Indisponible</span>
+                        <span class="badge-status-indisponible">Indisponible</span>
                     {% endif %}
                 </div>
 
-                <h5 class="card-title fw-bold">
-                    <a href="{% url 'tools:tool_detail' fav.outil.pk %}" class="text-decoration-none text-dark">
+                <h5 class="tool-card-title">
+                    <a href="{% url 'tools:tool_detail' fav.outil.pk %}" class="text-decoration-none" style="color: var(--ink);">
                         {{ fav.outil.titre }}
                     </a>
                 </h5>
-                <p class="card-text text-muted small flex-grow-1">
+                <p class="tool-card-meta flex-grow-1">
                     {{ fav.outil.description|truncatewords:15|default:"Aucune description." }}
                 </p>
 
-                <div class="pt-2 border-top d-flex justify-content-between align-items-center mt-auto">
-                    <small class="text-muted">
+                <div class="tool-card-bottom pt-2" style="border-top: 1px solid var(--border);">
+                    <small style="color: var(--ink-soft);">
                         <i class="bi bi-person me-1"></i>{{ fav.outil.proprietaire.username }}
                     </small>
-                    <a href="{% url 'tools:tool_detail' fav.outil.pk %}" class="btn btn-sm btn-outline-primary">
-                        Voir la fiche
+                    <a href="{% url 'tools:tool_detail' fav.outil.pk %}" class="btn btn-sm btn-secondary">
+                        Voir
                     </a>
                 </div>
             </div>
@@ -58,9 +60,9 @@
     </div>
     {% empty %}
     <div class="col-12 text-center py-5">
-        <i class="bi bi-heart text-muted" style="font-size: 3rem;"></i>
-        <h5 class="mt-3 text-muted">Vous n'avez aucun outil dans vos favoris.</h5>
-        <a href="{% url 'tools:tool_list' %}" class="btn btn-outline-primary mt-2">Parcourir le catalogue</a>
+        <i class="bi bi-heart" style="font-size: 3rem; color: var(--ink-soft);"></i>
+        <h5 class="mt-3" style="color: var(--ink-soft);">Vous n'avez aucun outil dans vos favoris.</h5>
+        <a href="{% url 'tools:tool_list' %}" class="btn btn-secondary mt-2">Parcourir le catalogue</a>
     </div>
     {% endfor %}
 </div>

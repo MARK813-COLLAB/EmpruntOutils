@@ -1,24 +1,22 @@
 {% extends "base.html" %}
 
-{% block title %}Catalogue des outils - EmpruntOutils{% endblock %}
+{% block title %}Catalogue des outils — EmpruntOutils{% endblock %}
 
 {% block content %}
-<div class="row mb-4 align-items-center">
-    <div class="col-md-8">
-        <h2 class="fw-bold"><i class="bi bi-grid me-2 text-primary"></i>Catalogue des outils partagés</h2>
-        <p class="text-muted mb-0">Découvrez et empruntez les outils mis à disposition par d'autres étudiants</p>
+<div class="d-flex justify-content-between align-items-start mb-4">
+    <div>
+        <h1>Catalogue</h1>
+        <p style="color: var(--ink-soft);">Découvrez et empruntez les outils mis à disposition par d'autres étudiants</p>
     </div>
-    <div class="col-md-4 text-md-end mt-3 mt-md-0">
-        {% if user.is_authenticated %}
-        <a href="{% url 'tools:tool_create' %}" class="btn btn-primary">
-            <i class="bi bi-plus-circle me-1"></i>Proposer un outil
-        </a>
-        {% endif %}
-    </div>
+    {% if user.is_authenticated %}
+    <a href="{% url 'tools:tool_create' %}" class="btn btn-primary">
+        + Proposer un outil
+    </a>
+    {% endif %}
 </div>
 
-<!-- Filtres et recherche (F3, F15) -->
-<div class="card shadow-sm border-0 mb-4 bg-white">
+<!-- Filtres et recherche -->
+<div class="card mb-4">
     <div class="card-body p-3">
         <form method="get" class="row g-2 align-items-center">
             <div class="col-md-4">
@@ -51,66 +49,68 @@
 <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
     {% for tool in tools %}
     <div class="col">
-        <div class="card h-100 shadow-sm border-0 position-relative">
+        <div class="card tool-card">
             {% if tool.photo %}
-                <img src="{{ tool.photo.url }}" class="card-img-top" alt="{{ tool.titre }}" style="height: 190px; object-fit: cover;">
+                <div class="tool-thumb">
+                    <img src="{{ tool.photo.url }}" alt="{{ tool.titre }}">
+                </div>
             {% else %}
-                <div class="card-img-top bg-secondary-subtle d-flex align-items-center justify-content-center text-secondary" style="height: 190px;">
-                    <i class="bi bi-tools" style="font-size: 3rem;"></i>
+                <div class="tool-thumb">
+                    <i class="bi bi-tools tool-thumb-icon" style="font-size: 2.5rem; color: var(--ink-soft);"></i>
                 </div>
             {% endif %}
 
-            <!-- Bouton favori F11 -->
+            <!-- Bouton favori -->
             {% if user.is_authenticated %}
             <div class="position-absolute top-0 end-0 p-2">
-                <a href="{% url 'tools:toggle_favori' tool.pk %}" class="btn btn-sm btn-light rounded-circle shadow-sm" title="Ajouter aux favoris">
+                <a href="{% url 'tools:toggle_favori' tool.pk %}" class="btn-star-fav" title="Favoris">
                     {% if tool.pk in user_favoris_ids %}
-                        <i class="bi bi-heart-fill text-danger"></i>
+                        <i class="bi bi-heart-fill" style="color: var(--accent);"></i>
                     {% else %}
-                        <i class="bi bi-heart text-muted"></i>
+                        <i class="bi bi-heart" style="color: var(--ink-soft);"></i>
                     {% endif %}
                 </a>
             </div>
             {% endif %}
 
-            <div class="card-body d-flex flex-column">
+            <div class="tool-card-body">
                 <div class="d-flex justify-content-between align-items-start mb-2">
-                    <span class="badge bg-light text-primary border">{{ tool.categorie.nom }}</span>
+                    <span class="tool-category-label">{{ tool.categorie.nom }}</span>
                     {% if tool.etat == 'a_reparer' or tool.signale_endommage %}
-                        <span class="badge bg-danger">À réparer</span>
+                        <span class="badge-status-retard">À réparer</span>
                     {% elif tool.disponible %}
-                        <span class="badge bg-success">Disponible</span>
+                        <span class="badge-status-disponible">Disponible</span>
                     {% else %}
-                        <span class="badge bg-warning text-dark">Indisponible</span>
+                        <span class="badge-status-indisponible">Indisponible</span>
                     {% endif %}
                 </div>
 
-                <h5 class="card-title fw-bold">
-                    <a href="{% url 'tools:tool_detail' tool.pk %}" class="text-decoration-none text-dark">
+                <h5 class="tool-card-title">
+                    <a href="{% url 'tools:tool_detail' tool.pk %}" class="text-decoration-none" style="color: var(--ink);">
                         {{ tool.titre }}
                     </a>
                 </h5>
-                <p class="card-text text-muted small flex-grow-1">
+                <p class="tool-card-meta flex-grow-1">
                     {{ tool.description|truncatewords:18|default:"Aucune description détaillée." }}
                 </p>
 
-                <!-- Tags F15 -->
+                <!-- Tags -->
                 {% if tool.tags.all %}
                 <div class="mb-3 d-flex flex-wrap gap-1">
                     {% for tag in tool.tags.all %}
-                        <a href="?tag={{ tag.pk }}" class="badge bg-secondary-subtle text-secondary text-decoration-none small">
+                        <a href="?tag={{ tag.pk }}" class="tag-badge text-decoration-none">
                             #{{ tag.nom }}
                         </a>
                     {% endfor %}
                 </div>
                 {% endif %}
 
-                <div class="pt-2 border-top d-flex justify-content-between align-items-center mt-auto">
-                    <small class="text-muted">
+                <div class="tool-card-bottom pt-2" style="border-top: 1px solid var(--border);">
+                    <small style="color: var(--ink-soft);">
                         <i class="bi bi-person me-1"></i>{{ tool.proprietaire.username }}
                     </small>
-                    <a href="{% url 'tools:tool_detail' tool.pk %}" class="btn btn-sm btn-outline-primary">
-                        Voir la fiche <i class="bi bi-arrow-right ms-1"></i>
+                    <a href="{% url 'tools:tool_detail' tool.pk %}" class="btn btn-sm btn-secondary">
+                        Voir <i class="bi bi-arrow-right ms-1"></i>
                     </a>
                 </div>
             </div>
@@ -118,9 +118,9 @@
     </div>
     {% empty %}
     <div class="col-12 text-center py-5">
-        <i class="bi bi-search text-muted" style="font-size: 3rem;"></i>
-        <h5 class="mt-3 text-muted">Aucun outil ne correspond à votre recherche.</h5>
-        <a href="{% url 'tools:tool_list' %}" class="btn btn-outline-secondary mt-2">Réinitialiser les filtres</a>
+        <i class="bi bi-search" style="font-size: 3rem; color: var(--ink-soft);"></i>
+        <h5 class="mt-3" style="color: var(--ink-soft);">Aucun outil ne correspond à votre recherche.</h5>
+        <a href="{% url 'tools:tool_list' %}" class="btn btn-secondary mt-2">Réinitialiser les filtres</a>
     </div>
     {% endfor %}
 </div>

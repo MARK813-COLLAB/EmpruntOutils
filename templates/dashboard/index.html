@@ -1,67 +1,39 @@
 {% extends "base.html" %}
 
-{% block title %}Tableau de bord administrateur - EmpruntOutils{% endblock %}
+{% block title %}Tableau de bord — EmpruntOutils{% endblock %}
 
 {% block content %}
 <div class="mb-4">
-    <h2 class="fw-bold"><i class="bi bi-speedometer2 me-2 text-primary"></i>Tableau de Bord Administrateur (F10)</h2>
-    <p class="text-muted mb-0">Statistiques globales d'utilisation, outils les plus prêtés, utilisateurs actifs et retards</p>
+    <h1>Tableau de bord</h1>
+    <p style="color: var(--ink-soft);">Statistiques globales d'utilisation, outils les plus prêtés, utilisateurs actifs et retards</p>
 </div>
 
-<!-- Cartes d'indicateurs clés -->
-<div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4">
-    <div class="col">
-        <div class="card border-0 shadow-sm bg-primary text-white p-3 h-100">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase mb-1 small fw-bold">Utilisateurs</h6>
-                    <h3 class="fw-bold mb-0">{{ total_users }}</h3>
-                </div>
-                <i class="bi bi-people fs-1 opacity-75"></i>
-            </div>
-        </div>
+<!-- KPI -->
+<div class="kpi-row">
+    <div class="kpi-card">
+        <div class="kpi-label">Utilisateurs</div>
+        <div class="kpi-value">{{ total_users }}</div>
     </div>
-    <div class="col">
-        <div class="card border-0 shadow-sm bg-info text-dark p-3 h-100">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase mb-1 small fw-bold">Outils au catalogue</h6>
-                    <h3 class="fw-bold mb-0">{{ total_tools }}</h3>
-                </div>
-                <i class="bi bi-tools fs-1 opacity-75"></i>
-            </div>
-        </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Outils au catalogue</div>
+        <div class="kpi-value">{{ total_tools }}</div>
     </div>
-    <div class="col">
-        <div class="card border-0 shadow-sm bg-success text-white p-3 h-100">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase mb-1 small fw-bold">Prêts actifs</h6>
-                    <h3 class="fw-bold mb-0">{{ active_loans_count }} <small class="fs-6 font-monospace">/ {{ total_loans }} total</small></h3>
-                </div>
-                <i class="bi bi-arrow-repeat fs-1 opacity-75"></i>
-            </div>
-        </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Prêts actifs</div>
+        <div class="kpi-value accent">{{ active_loans_count }} <small style="font-size: 14px; font-weight: 400; color: var(--ink-soft);">/ {{ total_loans }} total</small></div>
     </div>
-    <div class="col">
-        <div class="card border-0 shadow-sm {% if overdue_loans_count > 0 %}bg-danger text-white{% else %}bg-secondary text-white{% endif %} p-3 h-100">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h6 class="text-uppercase mb-1 small fw-bold">Prêts en retard</h6>
-                    <h3 class="fw-bold mb-0">{{ overdue_loans_count }}</h3>
-                </div>
-                <i class="bi bi-clock-history fs-1 opacity-75"></i>
-            </div>
-        </div>
+    <div class="kpi-card">
+        <div class="kpi-label">Prêts en retard</div>
+        <div class="kpi-value {% if overdue_loans_count > 0 %}accent{% endif %}">{{ overdue_loans_count }}</div>
     </div>
 </div>
 
 <div class="row g-4 mb-4">
     <!-- Outils les plus prêtés -->
     <div class="col-lg-6">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white py-3 fw-bold">
-                <i class="bi bi-trophy me-2 text-warning"></i>Outils les plus prêtés
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0 fw-bold">Outils les plus prêtés</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -78,17 +50,17 @@
                             {% for tool in most_lent_tools %}
                             <tr>
                                 <td class="fw-semibold">
-                                    <a href="{% url 'tools:tool_detail' tool.pk %}" class="text-decoration-none text-dark">
+                                    <a href="{% url 'tools:tool_detail' tool.pk %}" class="text-decoration-none" style="color: var(--ink);">
                                         {{ tool.titre }}
                                     </a>
                                 </td>
-                                <td><span class="badge bg-light text-primary border">{{ tool.categorie.nom }}</span></td>
+                                <td><span class="badge-status-indisponible">{{ tool.categorie.nom }}</span></td>
                                 <td>{{ tool.proprietaire.username }}</td>
-                                <td class="text-end"><span class="badge bg-primary rounded-pill">{{ tool.nb_prets }}</span></td>
+                                <td class="text-end"><span class="fw-bold" style="color: var(--accent);">{{ tool.nb_prets }}</span></td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center py-4 text-muted">Aucun prêt enregistré</td>
+                                <td colspan="4" class="text-center py-4" style="color: var(--ink-soft);">Aucun prêt enregistré</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -100,9 +72,9 @@
 
     <!-- Utilisateurs les plus actifs -->
     <div class="col-lg-6">
-        <div class="card shadow-sm border-0 h-100">
-            <div class="card-header bg-white py-3 fw-bold">
-                <i class="bi bi-person-check me-2 text-primary"></i>Utilisateurs les plus actifs
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0 fw-bold">Utilisateurs les plus actifs</h5>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -111,7 +83,7 @@
                             <tr>
                                 <th>Étudiant</th>
                                 <th>Email</th>
-                                <th class="text-center">Outils proposés</th>
+                                <th class="text-center">Outils</th>
                                 <th class="text-end">Emprunts</th>
                             </tr>
                         </thead>
@@ -119,13 +91,13 @@
                             {% for u in most_active_borrowers %}
                             <tr>
                                 <td class="fw-semibold">{{ u.username }}</td>
-                                <td class="text-muted small">{{ u.email }}</td>
-                                <td class="text-center"><span class="badge bg-light text-dark border">{{ u.nb_outils }}</span></td>
-                                <td class="text-end"><span class="badge bg-success rounded-pill">{{ u.nb_emprunts }}</span></td>
+                                <td class="small" style="color: var(--ink-soft);">{{ u.email }}</td>
+                                <td class="text-center">{{ u.nb_outils }}</td>
+                                <td class="text-end"><span class="fw-bold" style="color: var(--accent);">{{ u.nb_emprunts }}</span></td>
                             </tr>
                             {% empty %}
                             <tr>
-                                <td colspan="4" class="text-center py-4 text-muted">Aucun utilisateur actif</td>
+                                <td colspan="4" class="text-center py-4" style="color: var(--ink-soft);">Aucun utilisateur actif</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -136,10 +108,10 @@
     </div>
 </div>
 
-<!-- Liste détaillée des prêts en retard -->
-<div class="card shadow-sm border-0 border-start border-danger border-4">
-    <div class="card-header bg-white py-3 fw-bold text-danger">
-        <i class="bi bi-exclamation-triangle me-2"></i>Détail des prêts actuellement en retard
+<!-- Prêts en retard -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0 fw-bold">Détail des prêts actuellement en retard</h5>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -159,14 +131,14 @@
                         <td class="fw-semibold">{{ loan.outil.titre }}</td>
                         <td>{{ loan.emprunteur.username }}</td>
                         <td>{{ loan.outil.proprietaire.username }}</td>
-                        <td class="text-danger fw-bold">{{ loan.date_fin_prevue|date:"d/m/Y" }}</td>
+                        <td class="fw-bold" style="color: var(--accent);">{{ loan.date_fin_prevue|date:"d/m/Y" }}</td>
                         <td>
                             {% if loan.emprunteur.profile.telephone %}
-                                <a href="tel:{{ loan.emprunteur.profile.telephone }}" class="text-decoration-none">
+                                <a href="tel:{{ loan.emprunteur.profile.telephone }}" class="text-decoration-none" style="color: var(--ink);">
                                     <i class="bi bi-telephone me-1"></i>{{ loan.emprunteur.profile.telephone }}
                                 </a>
                             {% else %}
-                                <a href="mailto:{{ loan.emprunteur.email }}" class="text-decoration-none">
+                                <a href="mailto:{{ loan.emprunteur.email }}" class="text-decoration-none" style="color: var(--ink);">
                                     <i class="bi bi-envelope me-1"></i>{{ loan.emprunteur.email }}
                                 </a>
                             {% endif %}
@@ -174,7 +146,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="text-center py-4 text-success">
+                        <td colspan="5" class="text-center py-4" style="color: var(--ink-soft);">
                             <i class="bi bi-check-circle me-1"></i>Aucun prêt en retard actuellement !
                         </td>
                     </tr>
